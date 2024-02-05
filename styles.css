@@ -1,0 +1,43 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+#mesAnio {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.controles {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+#contadorSeleccionados {
+    margin-top: 10px;
+}
+
+#contadorSeleccionados span {
+    font-weight: bold;
+    color: #0066cc; /* Color azul oscuro */
+}
+
+/* Estilo para días seleccionados */
+td.seleccionado {
+    background-color: #66b3ff; /* Color azul claro */
+    font-weight: bold;
+    color: white;
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obtener Información de Festividad</title>
+</head>
+<body>
+
+<!-- Elemento para mostrar la información de la festividad -->
+<p id="resultado"></p>
+
+<script>
+    // Función para cargar festividades y obtener información de una fecha específica
+    function getHolidayInfo(dia, mes, año) {
+        // Utilizamos la Fetch API para cargar el archivo JSON
+        return fetch('festividades.json')
+            .then(response => response.json())
+            .then(data => {
+                const festividades = data;
+
+                // Buscar la festividad correspondiente
+                const festividadEncontrada = festividades.find(festividad =>
+                    festividad.numDia === dia && festividad.numMes === mes && festividad.numAño === año
+                );
+
+                // Devolver el nombre de la festividad o un mensaje si no se encuentra
+                return festividadEncontrada ? festividadEncontrada.festividad : "No hay festividad para esta fecha.";
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                return "Error al cargar las festividades.";
+            });
+    }
+
+    // Ejemplo de uso y mostrar resultado en pantalla
+    getHolidayInfo(6, 1, 2023)
+        .then(resultado => {
+            // Mostrar el resultado en el elemento con id "resultado"
+            document.getElementById('resultado').textContent = resultado;
+        });
+</script>
+
+</body>
+</html>

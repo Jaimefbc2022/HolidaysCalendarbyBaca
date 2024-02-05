@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Festividades</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        #mesAnio {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .controles {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        #contadorSeleccionados {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Elemento para mostrar la información de la festividad -->
+<p id="resultado"></p>
+
+<!-- Controles de mes y año -->
+<div class="controles">
+    <button onclick="cambiarMes(-1)">Anterior</button>
+    <span id="mesAnio"></span>
+    <button onclick="cambiarMes(1)">Siguiente</button>
+</div>
+
+<!-- Calendario -->
+<div id="calendarioContainer"></div>
+
+<!-- Contador de días seleccionados -->
+<div id="contadorSeleccionados"></div>
+
+<script>
+    // Función para cargar festividades y obtener información de una fecha específica
+    async function getHolidayInfo(dia, mes, año) {
+        // Utilizamos la Fetch API para cargar el archivo JSON
+        try {
+            const response = await fetch('festividades.json');
+            const data = await response.json();
+
+            // Buscar la festividad correspondiente
+            const festividadEncontrada = data.find(festividad =>
+                festividad.numDia === dia && festividad.numMes === mes && festividad.numAño === año
+            );
+
+            // Devolver el nombre de la festividad o un mensaje si no se encuentra
+            return festividadEncontrada ? festividadEncontrada.festividad : "";
+        } catch (error) {
+            console.error('Error:', error);
+            return "Error al cargar las festividades.";
+        }
+    }
+
+    // Crear calendario para un mes específico
+    async function crearCalendario(mes, año) {
+        const container = document.getElementById('calendarioContainer');
+        container.innerHTML = '';  // Limpiar el contenido existente
+
+        // Crear tabla HTML
+        const tabla = document.createElement('table');
+        tabla.id = 'calendario';
+        container.appendChild(tabla);
+
+        // Crear encabezado de la tabla
+        const thead = document.createElement('thead');
+        const trEncabezado = document.createElement('tr');
+        const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+        diasSemana.forEach(dia => {
+            const th = document.createElement('th');
+            th.textContent = dia;
+            trEncabezado.appendChild(th);
+        });
+
+        thead.appendChild(trEncabezado);
+        tabla.appendChild(thead);
+
+        // Crear cuerpo de la tabla
+        const tbody = document.createElement('tbody');
+        tabla.appendChild(tbody);
+
+        const primerDia = new Date(año, mes - 1, 1).getDay();
+        const ultimoDia = new Date(año, mes, 0).getDate();
+
+        let dayCount = 1;
+
+        for (let i = 0; i < 6; i++) {
+            const tr = document.createElement('tr');
+
+            for (let j = 0; j < 7; j++) {
+                const td = document.createElement('td');
+
+                if ((i === 0 && j < primerDia) || dayCount > ultimoDia) {
+                    // Celda vacía antes del primer día y después del último día
+                    td.textContent = '';
+                } else {
+                    // Día del mes
+                    td.textContent = dayCount;
+
+                    // Agregar evento de clic para seleccionar/deseleccionar días
+                    td.addEventListener('click', () => toggleSeleccion(td));
+
+                    dayCount++;
+                }
+
+                tr.appendChild(td);
+            }
+
+            tbody.appendChild(tr);
+        }
+
+        // Mostrar el mes y el año
+        document.getElementById('mesAnio').textContent = `${getNombreMes(mes)} ${año}`;
+    }
+
+    // Obtener el nombre del mes
+    function getNombreMes(mes) {
+        const nombresMeses = [
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ];
+        return nombresMeses[mes - 1];
+    }
+
+    // Cambiar al mes siguiente o anterior
+    function cambiarMes(delta) {
+        const mesAnioElement = document.getElementById('mesAnio');
+        const mesAnioTexto = mesAnioElement.textContent;
+        const [nombreMes, año] = mesAnioTexto.split(' ');
+        const mes = getNumeroMes(nombreMes);
+
+        const nuevoMes = mes + delta;
+
+        // Verificar si se cambia de año
+        let nuevoAño = Number(año);
+        if (nuevoMes === 0) {
+            nuevoAño--;
+            crearCalendario(12, nuevoAño);
+        } else if (nuevoMes === 13) {
+            nuevoAño++;
+            crearCalendario(1, nuevoAño);
+        } else {
+            crearCalendario(nuevoMes, nuevoAño);
+        }
+    }
+
+    // Obtener el número del mes a partir de su nombre
+    function getNumeroMes(nombreMes) {
+        const nombresMeses = [
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ];
+        return nombresMeses.indexOf(nombreMes) + 1;
+    }
+
+    // Función para seleccionar/deseleccionar días
+    function toggleSeleccion(td) {
+        // Obtener el valor del día
+        const dia = parseInt(td.textContent, 10);
+
+        // Verificar si el día está seleccionado
+        const estaSeleccionado = td.classList.contains('seleccionado');
+
+        if (estaSeleccionado) {
+            // Deseleccionar el día
+            td.classList.remove('seleccionado');
+            decrementarContador();
+        } else {
+            // Seleccionar el día
+            td.classList.add('seleccionado');
+            incrementarContador();
+        }
+
+        // Obtener el mes y año actual
+        const mesAnioElement = document.getElementById('mesAnio');
+        const mesAnioTexto = mesAnioElement.textContent;
+        const [nombreMes, año] = mesAnioTexto.split(' ');
+        const mes = getNumeroMes(nombreMes);
+
+        // Actualizar el resultado
+        actualizarResultado(dia, mes, Number(año), !estaSeleccionado);
+    }
+
+    // Función para incrementar el contador de días seleccionados
+    function incrementarContador() {
+        const contadorSeleccionados = document.getElementById('contadorSeleccionados');
+        const valorActual = parseInt(contadorSeleccionados.textContent, 10) || 0;
+        contadorSeleccionados.textContent = valorActual + 1;
+    }
+
+    // Función para decrementar el contador de días seleccionados
+    function decrementarContador() {
+        const contadorSeleccionados = document.getElementById('contadorSeleccionados');
+        const valorActual = parseInt(contadorSeleccionados.textContent, 10) || 0;
+
+        if (valorActual > 0) {
+            contadorSeleccionados.textContent = valorActual - 1;
+        }
+    }
+
+    // Actualizar el resultado según los días seleccionados
+    async function actualizarResultado(dia, mes, año, seleccionado) {
+        // Obtener información de festividad
+        const resultado = seleccionado ? await getHolidayInfo(dia, mes, año) : "";
+
+        // Mostrar el resultado en el elemento con id "resultado"
+        document.getElementById('resultado').textContent = resultado;
+    }
+
+    // Inicializar el calendario con el mes y año actual
+    const fechaActual = new Date();
+    crearCalendario(fechaActual.getMonth() + 1, fechaActual.getFullYear());
+</script>
+
+</body>
+</html>
