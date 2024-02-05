@@ -1,53 +1,31 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendario de Vacaciones</title>
+    <title>Calendario de Festividades</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <h2>Calendario de Vacaciones</h2>
+<!-- Elemento para mostrar la información de la festividad -->
+<p id="resultado"></p>
 
-    <!-- Encabezado con formulario y contador -->
-    <div id="vacation-header">
-        <!-- Formulario para ingresar la cantidad de días disponibles -->
-        <div>
-            <label for="available-days">Días Disponibles:</label>
-            <input type="number" id="available-days" min="0" value="0">
-        </div>
+<!-- Controles de mes y año -->
+<div class="controles">
+    <button onclick="cambiarMes(-1)">Anterior</button>
+    <span id="mesAnio"></span>
+    <button onclick="cambiarMes(1)">Siguiente</button>
+</div>
 
-        <!-- Contador de días canjeables -->
-        <div id="vacation-counter">Días Canjeables: 0</div>
-    </div>
+<!-- Calendario -->
+<div id="calendarioContainer"></div>
 
-    <!-- Navegación entre meses -->
-    <div id="month-navigation">
-        <button onclick="previousMonth()">Anterior</button>
-        <span id="current-month-year"></span>
-        <button onclick="nextMonth()">Siguiente</button>
-    </div>
+<!-- Contador de días seleccionados -->
+<div id="infoSeleccionados">Días seleccionados: <span id="contador">0</span></div>
 
-    <!-- Calendario -->
-    <table>
-        <thead>
-            <tr>
-                <th>Lun</th>
-                <th>Mar</th>
-                <th>Mie</th>
-                <th>Jue</th>
-                <th>Vie</th>
-                <th>Sáb</th>
-                <th>Dom</th>
-            </tr>
-        </thead>
-        <tbody id="calendar-body">
-            <!-- Aquí se generará dinámicamente el contenido del calendario -->
-        </tbody>
-    </table>
 
-    <script src="script_final.js"></script>
+<script src="script_final.js"></script>
+
 </body>
 </html>
